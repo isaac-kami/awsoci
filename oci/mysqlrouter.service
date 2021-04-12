@@ -1,0 +1,27 @@
+[Unit]
+Description=MySQL Router
+After=network.target
+
+[Service]
+User=mysql
+Group=mysql
+Type=simple
+
+#PIDFile=/usr/local/mysql/data/mysqld.pid
+
+TimeoutSec=0
+PIDFile=/etc/mysqlrouter/mysql-router/mysqlrouter.pid
+
+# Start main service
+ExecStart=/bin/bash -c "/usr/bin/mysqlrouter -c /etc/mysqlrouter/mysqlrouter.conf"
+
+Restart=on-failure
+
+RestartPreventExitStatus=1
+
+PrivateTmp=true
+
+[Install]
+
+WantedBy=multi-user.target
+

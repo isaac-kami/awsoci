@@ -1,0 +1,77 @@
+---
+- hosts: all
+
+  tasks:
+    - name: install latest version of mysql
+      apt: name=mysql-server state=latest
+      become: yes
+
+    - name: install essentials for  MySQL
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - python-dev
+          - libmysqlclient-dev
+          - python3-pip
+          - python3-mysql.connector
+          - mydumper
+          - mysqltuner
+          - python3-pymysql
+          - python3-mysqldb
+        state: latest
+      become: yes
+
+    - name: Stop mysql
+      service:
+        name: mysql
+        state: stopped
+      become: yes
+
+
+    - name: Copy my.cnf content to /etc/mysql/my.cnf
+      template:
+        src: ./my.cnf
+        dest: /etc/mysql/my.cnf
+        owner: root
+        group: root
+        mode: 0644
+        backup: true
+      become: yes
+
+
+    - name: Copy MySQL Router configuration
+      template:
+        src: ./mysqlrouter.conf
+        dest: /etc/mysqlrouter/
+        owner: root
+        group: root
+        mode: 0644
+        backup: true
+      become: yes
+
+    - name: Copy MySQL Router Systemd configuration
+      template:
+        src: ./mysqlrouter.service
+        dest: /usr/lib/systemd/system/
+        owner: root
+        group: root
+        mode: 0644
+        backup: true
+      become: yes
+
+    - name: Setup owner mysql on /var/log/mysqlrouter
+      file:
+        path: /var/log/mysqlrouter
+        owner: mysql
+        group: mysql
+        mode: 0755
+        recurse: yes
+      become: yes
+
+    - name: Start service with systemd
+      systemd:
+        name: mysqlrouter
+        state: started
+        enabled: True
+      become: yes 
