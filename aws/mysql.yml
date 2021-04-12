@@ -1,7 +1,5 @@
 ---
 - hosts: all
-  vars:
-    mypasswd: Str0nkPa$$wd
 
   tasks:
     - name: install latest version of mysql
@@ -49,25 +47,8 @@
       become: yes
 
 
-    - name: create replication user
-      mysql_user:
-        login_user: root
-        login_password: ""
-        login_port: 3306
-        login_unix_socket: '/var/run/mysqld/mysqld.sock'
-        name: replicauser
-        password: "{{ mypasswd }}"
-        priv: '*.*:REPLICATION SLAVE'
-        state: present
-      become: yes
-
-
     - name: Flush privileges
       command: /usr/bin/mysql -uroot -e "flush privileges;"
-      become: yes
-
-    - name: Set access host %
-      command: /usr/bin/mysql -uroot -e "UPDATE mysql.user SET Host='%' WHERE Host='localhost' AND User='replicauser';"
       become: yes
 
     - name: Password for root login
